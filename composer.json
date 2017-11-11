@@ -1,0 +1,22 @@
+{
+    "name": "vuba/oidc-user",
+    "type": "userfrosting-sprinkle",
+    "description": "Sprinkle for extending the User model.",
+    "homepage": "https://github.com/songvi/oidc-user",
+    "license" : "MIT",
+    "authors" : [
+        {
+            "name": "Song Vi",
+            "homepage": "https://github.com/songvi"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "UserFrosting\\Sprinkle\\OidcUser\\": "src/"
+        }
+    },
+    "extra": {
+        "installer-name": "oidc-user"
+    }
+}
+
