@@ -8,4 +8,11 @@
             {{user.gender}}, {{user.birthdate}} , {{user.zoneinfo}}, {{user.phone_number}}, {{user.address}}
         </p>
     {% endif %}
+    {% if 'gender' not in fields.hidden %}
+        <hr>
+        <strong><i class="fa fa-map-marker margin-r-5"></i> Gender</strong>
+        <p class="text-muted box-profile-property">
+            {{user.gender}}
+        </p>
+    {% endif %}
 {% endblock %}

@@ -34,17 +34,17 @@ group_id:
     integer:
       label: "&GROUP"
       message: VALIDATE.INTEGER
-city:
+gender:
   validators:
     length:
-      label: City
-      min: 1
-      max: 255
-      message: VALIDATE.LENGTH_RANGE
-country:
+      label: "Gender"
+      min: 0
+      max: 10
+      message: VALIDATE.LENGTH_RANGE;
+zoneinfo:
   validators:
     length:
-      label: Country
-      min: 1
-      max: 255
-      message: VALIDATE.LENGTH_RANGE
+      label: "ZONEINFO"
+      min: 0
+      max: 25
+      message: VALIDATE.LENGTH_RANGE;

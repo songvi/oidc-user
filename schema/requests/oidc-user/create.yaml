@@ -70,6 +70,20 @@ group_id:
       label: "&GROUP"
       domain: server
       message: VALIDATE.INTEGER
+gender:
+  validators:
+    length:
+      label: "Gender"
+      min: 0
+      max: 10
+      message: VALIDATE.LENGTH_RANGE;
+zoneinfo:
+  validators:
+    length:
+      label: "ZONEINFO"
+      min: 0
+      max: 25
+      message: VALIDATE.LENGTH_RANGE;
 
 
 

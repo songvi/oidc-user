@@ -21,10 +21,7 @@ class OidcUserTable extends Migration
                 $table->string('phone_number', 20)->nullable();
                 $table->string('address', 255)->nullable();
                 $table->string('roles', 700)->nullable();
-                $table->string('preferred_theme', 25)->nullable();
                 $table->string('sub', 255);
-                $table->string('preferred_username', 255)->nullable();
-                $table->string('nickname', 255)->nullable();
                 $table->string('profile', 255)->nullable();
                 $table->string('gender', 1)->nullable();
                 $table->index('sub');

@@ -30,11 +30,7 @@ class OidcUserAuxScope implements Scope
             "$oidcUserTable.phone_number as phone_number",
             "$oidcUserTable.address as address",
             "$oidcUserTable.roles as roles",
-            "$oidcUserTable.preferred_theme as preferred_theme",
-            "$oidcUserTable.preferred_username as preferred_username",
-            "$oidcUserTable.preferred_theme as preferred_theme",
             "$oidcUserTable.sub as sub",
-            "$oidcUserTable.nickname as nickname",
             "$oidcUserTable.profile as profile"
         );
 

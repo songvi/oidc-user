@@ -9,7 +9,7 @@ Edit UserFrosting `app/sprinkles.json` and add the following to the `require` li
 ```
 {
     "require": {
-        "userfrosting/extend-user": "~4.1.1"
+        "userfrosting/extend-user": "dev-master"
     },
     "base": [
         "core",

@@ -15,7 +15,7 @@ trait LinkOidcUserAux
     protected static function bootLinkLinkOidcUserAux()
     {
         /**
-         * Create a new OIDCUserAux if necessary, and save the associated oidc-user data every time.
+         * Create a new OIDCUserAux if necessary, and save the associated user data every time.
          */
         static::saved(function ($oidcUser) {
             $oidcUser->createOidcUserIfNotExists();
@@ -55,11 +55,7 @@ class OidcUser extends User
         'phone_number',
         'address',
         //'roles',
-        'preferred_theme',
-        'preferred_username',
-        'preferred_theme',
         //'sub',
-        'nickname',
         'profile'
     ];
 
