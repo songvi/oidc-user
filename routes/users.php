@@ -16,3 +16,10 @@ $app->group('/account', function () {
     $this->post('/settings/profile', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:profile')
         ->add('authGuard');
 });
+
+$app->group('/oauth2', function () {
+    $this->post('/token', 'UserFrosting\Sprinkle\OidcUser\Controller\Token:token');
+    $this->get('/authorize', 'UserFrosting\Sprinkle\OidcUser\Controller\Authorize:authorizeFormSubmit');
+    $this->post('/authorize', 'UserFrosting\Sprinkle\OidcUser\Controller\Authorize:authorize');
+    $this->post('/resource', 'UserFrosting\Sprinkle\OidcUser\Controller\Resource:resource');
+});

@@ -22,3 +22,4 @@ locale:
       label: "&LOCALE"
       domain: server
       message: VALIDATE.REQUIRED
+

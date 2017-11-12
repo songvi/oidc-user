@@ -19,7 +19,9 @@
         "installer-name": "oidc-user"
     },
     "require": {
-        "ramsey/uuid": "^3.0"
+        "ramsey/uuid": "^3.0",
+        "bshaffer/oauth2-server-php": "~1.9.0",
+        "bshaffer/oauth2-server-httpfoundation-bridge": "v1.3"
     }
 }
 
