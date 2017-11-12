@@ -12,7 +12,7 @@ trait LinkOidcUserAux
      *
      * @return void
      */
-    protected static function bootLinkLinkOidcUserAux()
+    protected static function bootLinkOidcUserAux()
     {
         /**
          * Create a new OIDCUserAux if necessary, and save the associated user data every time.
@@ -20,13 +20,13 @@ trait LinkOidcUserAux
         static::saved(function ($oidcUser) {
             $oidcUser->createOidcUserIfNotExists();
 
-            if ($oidcUser->auxType) {
+            if ($oidcUser->oidcUserType) {
                 // Set the aux PK, if it hasn't been set yet
-                if (!$oidcUser->aux->id) {
-                    $oidcUser->aux->id = $oidcUser->id;
+                if (!$oidcUser->oidcUserAux->id) {
+                    $oidcUser->oidcUserAux->id = $oidcUser->id;
                 }
 
-                $oidcUser->aux->save();
+                $oidcUser->oidcUserAux->save();
             }
         });
     }
@@ -49,6 +49,7 @@ class OidcUser extends User
         'last_activity_id',
         'password',
         'deleted_at',
+        ///////////////
         'gender',
         'birthdate',
         'zoneinfo',
@@ -78,7 +79,7 @@ class OidcUser extends User
     }
 
     /**
-     * Globally joins the `members` table to access additional properties.
+     * Globally joins the `` table to access additional properties.
      */
     protected static function boot()
     {
@@ -87,13 +88,13 @@ class OidcUser extends User
         static::addGlobalScope(new OidcUserAuxScope);
     }
 
-    public function setZoneInfoAttribute($value)
+    public function setZoneinfoAttribute($value)
     {
         $this->createOidcUserIfNotExists();
 
         $this->oidcUserAux->zoneinfo = $value;
     }
-    public function setPhoneNumberAttribute($value)
+    public function setPhonenumberAttribute($value)
     {
         $this->createOidcUserIfNotExists();
 
@@ -106,26 +107,6 @@ class OidcUser extends User
         $this->oidcUserAux->address = $value;
     }
 
-    public function setPreferredThemeAttribute($value)
-    {
-        $this->createOidcUserIfNotExists();
-
-        $this->oidcUserAux->prefferred_theme = $value;
-    }
-
-    public function setPreferredUserNameAttribute($value)
-    {
-        $this->createOidcUserIfNotExists();
-
-        $this->oidcUserAux->preferred_username = $value;
-    }
-
-    public function setNickNameAttribute($value)
-    {
-        $this->createOidcUserIfNotExists();
-
-        $this->oidcUserAux->nickname = $value;
-    }
 
     public function setProfileAttribute($value)
     {
@@ -154,7 +135,7 @@ class OidcUser extends User
      */
     public function oidcUserAux()
     {
-        return $this->hasOne($this->auxType, 'id');
+        return $this->hasOne($this->oidcUserType, 'id');
     }
 
     /**
@@ -162,9 +143,9 @@ class OidcUser extends User
      */
     protected function createOidcUserIfNotExists()
     {
-        if ($this->auxType && !count($this->oidcUserAux)) {
+        if ($this->oidcUserType && isset($this->oidcUserAux) && !count($this->oidcUserAux)) {
             // Create oidc_user model and set primary key to be the same as the main user's
-            $oidcUserAux = new $this->auxType;
+            $oidcUserAux = new $this->oidcUserType;
 
             // Needed to immediately hydrate the relation.  It will actually get saved in the bootLinkMemberAux method.
             $this->setRelation('oidcUserAux', $oidcUserAux);
