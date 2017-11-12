@@ -20,7 +20,8 @@ class OidcUserAux extends Model
         'phone_number',
         'address',
         //'roles',
-        //'sub',
+        'sub',
+        'idp',
         'profile'
     ];
 }

@@ -4,12 +4,12 @@ Example sprinkle for extending the User class to contain additional fields.
 
 # Installation
 
-Edit UserFrosting `app/sprinkles.json` and add the following to the `require` list : `"userfrosting/extend-user": "~4.1.1"`. Also add `extend-user` to the `base` list. For example:
+Edit UserFrosting `app/sprinkles.json` and add the following to the `require` list : `"userfrosting/oidc-user": "dev-master"`. Also add `oidc-user` to the `base` list. For example:
 
 ```
 {
     "require": {
-        "userfrosting/extend-user": "dev-master"
+        "vuba/oidc-user": "dev-master"
     },
     "base": [
         "core",

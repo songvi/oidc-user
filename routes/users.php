@@ -8,5 +8,11 @@ $app->group('/admin/users', function () {
 
 $app->group('/api/users', function () {
     $this->put('/u/{user_name}', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcUserController:updateInfo');
-
+    $this->post('', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcUserController:create');
 })->add('authGuard');
+
+$app->group('/account', function () {
+    $this->post('/register', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:register');
+    $this->post('/settings/profile', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:profile')
+        ->add('authGuard');
+});

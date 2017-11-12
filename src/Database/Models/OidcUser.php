@@ -25,7 +25,6 @@ trait LinkOidcUserAux
                 if (!$oidcUser->oidcUserAux->id) {
                     $oidcUser->oidcUserAux->id = $oidcUser->id;
                 }
-
                 $oidcUser->oidcUserAux->save();
             }
         });
@@ -49,14 +48,14 @@ class OidcUser extends User
         'last_activity_id',
         'password',
         'deleted_at',
-        ///////////////
         'gender',
         'birthdate',
         'zoneinfo',
         'phone_number',
         'address',
         //'roles',
-        //'sub',
+        'sub',
+        'idp',
         'profile'
     ];
 
@@ -79,7 +78,7 @@ class OidcUser extends User
     }
 
     /**
-     * Globally joins the `` table to access additional properties.
+     * Globally joins the `members` table to access additional properties.
      */
     protected static function boot()
     {
@@ -88,13 +87,13 @@ class OidcUser extends User
         static::addGlobalScope(new OidcUserAuxScope);
     }
 
-    public function setZoneinfoAttribute($value)
+    public function setZoneInfoAttribute($value)
     {
         $this->createOidcUserIfNotExists();
 
         $this->oidcUserAux->zoneinfo = $value;
     }
-    public function setPhonenumberAttribute($value)
+    public function setPhoneNumberAttribute($value)
     {
         $this->createOidcUserIfNotExists();
 
@@ -107,6 +106,26 @@ class OidcUser extends User
         $this->oidcUserAux->address = $value;
     }
 
+    public function setPreferredThemeAttribute($value)
+    {
+        $this->createOidcUserIfNotExists();
+
+        $this->oidcUserAux->prefferred_theme = $value;
+    }
+
+    public function setPreferredUserNameAttribute($value)
+    {
+        $this->createOidcUserIfNotExists();
+
+        $this->oidcUserAux->preferred_username = $value;
+    }
+
+    public function setNickNameAttribute($value)
+    {
+        $this->createOidcUserIfNotExists();
+
+        $this->oidcUserAux->nickname = $value;
+    }
 
     public function setProfileAttribute($value)
     {
@@ -130,6 +149,20 @@ class OidcUser extends User
         $this->oidcUserAux->birdthdate = $value;
     }
 
+    public function setSubAttribute($value)
+    {
+        $this->createOidcUserIfNotExists();
+
+        $this->oidcUserAux->sub = $value;
+    }
+
+    public function setIdpAttribute($value)
+    {
+        $this->createOidcUserIfNotExists();
+
+        $this->oidcUserAux->idp = $value;
+    }
+
     /**
      * Relationship for interacting with aux model (`oidc_users` table).
      */
@@ -143,7 +176,7 @@ class OidcUser extends User
      */
     protected function createOidcUserIfNotExists()
     {
-        if ($this->oidcUserType && isset($this->oidcUserAux) && !count($this->oidcUserAux)) {
+        if ($this->oidcUserType && !count($this->oidcUserAux)) {
             // Create oidc_user model and set primary key to be the same as the main user's
             $oidcUserAux = new $this->oidcUserType;
 

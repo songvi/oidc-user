@@ -31,7 +31,8 @@ class OidcUserAuxScope implements Scope
             "$oidcUserTable.address as address",
             "$oidcUserTable.roles as roles",
             "$oidcUserTable.sub as sub",
-            "$oidcUserTable.profile as profile"
+            "$oidcUserTable.profile as profile",
+            "$oidcUserTable.idp as idp"
         );
 
         // Join on matching `oidc_user` records

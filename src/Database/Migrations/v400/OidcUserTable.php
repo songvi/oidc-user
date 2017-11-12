@@ -21,10 +21,11 @@ class OidcUserTable extends Migration
                 $table->string('phone_number', 20)->nullable();
                 $table->string('address', 255)->nullable();
                 $table->string('roles', 700)->nullable();
-                $table->string('sub', 255);
+                $table->string('sub', 255)->nullable();
                 $table->string('profile', 255)->nullable();
                 $table->string('gender', 1)->nullable();
-                $table->index('sub');
+                $table->string('idp', 25)->nullable();
+                $table->index('id');
                 $table->unique('sub');
 
                 $table->engine = 'InnoDB';

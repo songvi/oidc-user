@@ -4,6 +4,8 @@
 
 namespace UserFrosting\Sprinkle\OidcUser\ServicesProvider;
 
+use Ramsey\Uuid\Uuid;
+
 class ServicesProvider
 {
     /**
@@ -22,5 +24,9 @@ class ServicesProvider
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\OidcUser\Database\Models\OidcUser');
             return $classMapper;
         });
+
+        $container['uuidGenerate'] = function ($c) {
+            return Uuid::uuid4();
+        };
     }
 }
