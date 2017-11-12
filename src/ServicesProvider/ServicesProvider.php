@@ -7,6 +7,7 @@ use OAuth2\OpenID\GrantType\AuthorizationCode;
 use Ramsey\Uuid\Uuid;
 use UserFrosting\Sprinkle\OidcUser\Authenticate\OidcAuthenticator;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use UserFrosting\Sprinkle\OidcUser\Oauth2\HttpFoundationBridge\Response;
 use UserFrosting\Sprinkle\OidcUser\Oauth2\OauthStorePdo;
 use OAuth2\Server as OAuth2Server;
 use OAuth2\Storage\Memory;
@@ -90,12 +91,8 @@ class ServicesProvider
         };
 
 
-        /**
-         * add HttpFoundataionBridge Response to the container, which returns a silex-compatible response object
-         * @see (https://github.com/bshaffer/oauth2-server-httpfoundation-bridge)
-         */
         $container['oauth_response'] = function($c){
-            return new BridgeResponse();
+            return new Response();
         };
     }
 

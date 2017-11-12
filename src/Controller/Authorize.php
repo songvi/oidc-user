@@ -7,6 +7,7 @@ use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Sprinkle\Core\Controller\SimpleController;
 use OAuth2\HttpFoundationBridge\Response as BridgeResponse;
 use OAuth2\HttpFoundationBridge\Request as BridgeRequest;
+use UserFrosting\Sprinkle\OidcUser\Oauth2\MessageConverter;
 
 class Authorize extends SimpleController{
     /**
@@ -48,13 +49,15 @@ class Authorize extends SimpleController{
         $server = $this->ci->oauth_server;
 
         // get the oauth response (configured in src/OAuth2Demo/Server/Server.php)
-        //$response = $this->ci->oauth_response;
+        $response = $this->ci->oauth_response;
 
         // check the form data to see if the user authorized the request
-
+        $request = MessageConverter::getSymfonyRequest($request);
         $authorized = (bool) $request->request->get('authorize');
 
         // call the oauth server and return the response
-        return $server->handleAuthorizeRequest($request, $response, $authorized);
+
+        //$request = \UserFrosting\Sprinkle\OidcUser\Oauth2\HttpFoundationBridge\Request::createFromGlobals()
+        $server->handleAuthorizeRequest($request, $response, $authorized);
     }
 }
