@@ -19,7 +19,6 @@ $app->group('/account', function () {
 
 $app->group('/oauth2', function () {
     $this->post('/token', 'UserFrosting\Sprinkle\OidcUser\Controller\Token:token');
-    $this->get('/authorize', 'UserFrosting\Sprinkle\OidcUser\Controller\Authorize:authorizeFormSubmit');
-    $this->post('/authorize', 'UserFrosting\Sprinkle\OidcUser\Controller\Authorize:authorize');
-    $this->post('/resource', 'UserFrosting\Sprinkle\OidcUser\Controller\Resource:resource');
+    //$this->post('/authorize', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Authorize:authorizeFormSubmit');
+    $this->get('/authorize', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Authorize:authorize')->add('authGuard');
 });

@@ -1,12 +1,11 @@
 <?php
-namespace UserFrosting\Sprinkle\OidcUser\Controller;
+namespace UserFrosting\Sprinkle\OidcUser\Oauth2;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Chadicus\Slim\OAuth2\Http\RequestBridge;
+use Chadicus\Slim\OAuth2\Http\ResponseBridge;
+use OAuth2\Response;
 use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Sprinkle\Core\Controller\SimpleController;
-use OAuth2\HttpFoundationBridge\Response as BridgeResponse;
-use OAuth2\HttpFoundationBridge\Request as BridgeRequest;
 use UserFrosting\Sprinkle\OidcUser\Oauth2\MessageConverter;
 
 class Authorize extends SimpleController{
@@ -18,15 +17,14 @@ class Authorize extends SimpleController{
     {
         // get the oauth server (configured in src/OAuth2Demo/Server/Server.php)
         $server = $this->ci->oauth_server;
+        $oauth2Response = new Response();
+        $request = RequestBridge::toOAuth2($request);
 
-        // get the oauth response (configured in src/OAuth2Demo/Server/Server.php)
-        $response = $this->ci->oauth_response;
 
         // validate the authorize request.  if it is invalid, redirect back to the client with the errors in tow
-        if (!$server->validateAuthorizeRequest($request, $response)) {
-
-            // TODO two types responses
-            return $server->getResponse();
+        if (!$server->validateAuthorizeRequest($request, $oauth2Response)) {
+            $response = ResponseBridge::fromOauth2($server->getResponse());
+            return $response;
         }
 
         // display the "do you want to authorize?" form
@@ -51,13 +49,7 @@ class Authorize extends SimpleController{
         // get the oauth response (configured in src/OAuth2Demo/Server/Server.php)
         $response = $this->ci->oauth_response;
 
-        // check the form data to see if the user authorized the request
-        $request = MessageConverter::getSymfonyRequest($request);
-        $authorized = (bool) $request->request->get('authorize');
-
-        // call the oauth server and return the response
-
         //$request = \UserFrosting\Sprinkle\OidcUser\Oauth2\HttpFoundationBridge\Request::createFromGlobals()
-        $server->handleAuthorizeRequest($request, $response, $authorized);
+        //$server->handleAuthorizeRequest($request, $response, $authorized);
     }
 }

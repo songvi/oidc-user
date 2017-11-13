@@ -1,6 +1,9 @@
 <?php
-namespace UserFrosting\Sprinkle\OidcUser\Controller;
+namespace UserFrosting\Sprinkle\OidcUser\Oauth2;
 
+use Chadicus\Slim\OAuth2\Http\RequestBridge;
+use Chadicus\Slim\OAuth2\Http\ResponseBridge;
+use OAuth2\Response;
 use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Sprinkle\Core\Controller\SimpleController;
 
@@ -15,10 +18,11 @@ class Token extends SimpleController{
         // get the oauth server (configured in src/OAuth2Demo/Server/Server.php)
         $server = $this->ci->oauth_server;
 
-        // get the oauth response (configured in src/OAuth2Demo/Server/Server.php)
-        $response = $this->ci->oauth_response;
+        $oauth2Response = new Response();
+        $request = RequestBridge::toOAuth2($request);
 
         // let the oauth2-server-php library do all the work!
-        return $server->handleTokenRequest($request, $response);
+        $oauth2Response =  $server->handleTokenRequest($request, $oauth2Response);
+        return ResponseBridge::fromOauth2($oauth2Response);
     }
 }

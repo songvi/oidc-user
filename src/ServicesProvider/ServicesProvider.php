@@ -7,11 +7,9 @@ use OAuth2\OpenID\GrantType\AuthorizationCode;
 use Ramsey\Uuid\Uuid;
 use UserFrosting\Sprinkle\OidcUser\Authenticate\OidcAuthenticator;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use UserFrosting\Sprinkle\OidcUser\Oauth2\HttpFoundationBridge\Response;
 use UserFrosting\Sprinkle\OidcUser\Oauth2\OauthStorePdo;
 use OAuth2\Server as OAuth2Server;
 use OAuth2\Storage\Memory;
-use OAuth2\HttpFoundationBridge\Response as BridgeResponse;
 
 class ServicesProvider
 {
@@ -88,11 +86,6 @@ class ServicesProvider
             $server->addStorage($this->getKeyStorage(), 'public_key');
 
             return $server;
-        };
-
-
-        $container['oauth_response'] = function($c){
-            return new Response();
         };
     }
 
