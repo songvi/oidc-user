@@ -20,9 +20,7 @@
     },
     "require": {
         "ramsey/uuid": "^3.0",
-        "bshaffer/oauth2-server-php": "~1.9.0",
-        "bshaffer/oauth2-server-httpfoundation-bridge": "v1.3",
-        "symfony/psr-http-message-bridge": "v1.0.0"
+        "chadicus/slim-oauth2" : "3.1.2"
     }
 }
 
