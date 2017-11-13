@@ -19,8 +19,8 @@
         "installer-name": "oidc-user"
     },
     "require": {
-        "ramsey/uuid": "^3.0",
-        "chadicus/slim-oauth2-middleware" : "v3.2.1"
+        "ramsey/uuid": "^3.0",        
+        "chadicus/slim-oauth2-http" : "3.1.4"
     }
 }
 
