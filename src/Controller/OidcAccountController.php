@@ -419,11 +419,12 @@ class OidcAccountController extends AccountController{
         $data['flag_verified'] = 1;
 
         // Validate request data
+        /*
         $validator = new ServerSideValidator($schema, $this->ci->translator);
         if (!$validator->validate($data)) {
             $ms->addValidationErrors($validator);
             $error = true;
-        }
+        }*/
 
         // Return with error
         if($error) return $response->withStatus(400);
