@@ -284,4 +284,210 @@ class OidcAccountController extends AccountController{
         $ms->addMessageTranslated('success', 'PROFILE.UPDATED');
         return $response->withStatus(200);
     }
+
+    /**
+     * Processes an account login request.
+     *
+     * Processes the request from the form on the login page, checking that:
+     * 1. The user is not already logged in.
+     * 2. The rate limit for this type of request is being observed.
+     * 3. Email login is enabled, if an email address was used.
+     * 4. The user account exists.
+     * 5. The user account is enabled and verified.
+     * 6. The user entered a valid username/email and password.
+     * This route, by definition, is "public access".
+     * Request type: POST
+     */
+    public function login($request, $response, $args)
+    {
+        /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
+        $ms = $this->ci->alerts;
+
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        $authenticator = $this->ci->authenticator;
+
+        // Return 200 success if user is already logged in
+        if ($authenticator->check()) {
+            $ms->addMessageTranslated('warning', 'LOGIN.ALREADY_COMPLETE');
+            return $response->withStatus(200);
+        }
+
+        /** @var UserFrosting\Config\Config $config */
+        $config = $this->ci->config;
+
+        // Get POST parameters
+        $params = $request->getParsedBody();
+
+        // Load the request schema
+        $schema = new RequestSchema('schema://requests/login.yaml');
+
+        // Whitelist and set parameter defaults
+        $transformer = new RequestDataTransformer($schema);
+        $data = $transformer->transform($params);
+
+        // Validate, and halt on validation errors.  Failed validation attempts do not count towards throttling limit.
+        $validator = new ServerSideValidator($schema, $this->ci->translator);
+        if (!$validator->validate($data)) {
+            $ms->addValidationErrors($validator);
+            return $response->withStatus(400);
+        }
+
+        // Determine whether we are trying to log in with an email address or a username
+        $isEmail = filter_var($data['user_name'], FILTER_VALIDATE_EMAIL);
+
+        // Throttle requests
+
+        /** @var UserFrosting\Sprinkle\Core\Throttle\Throttler $throttler */
+        $throttler = $this->ci->throttler;
+
+        $userIdentifier = $data['user_name'];
+
+        $throttleData = [
+            'user_identifier' => $userIdentifier
+        ];
+
+        $delay = $throttler->getDelay('sign_in_attempt', $throttleData);
+        if ($delay > 0) {
+            $ms->addMessageTranslated('danger', 'RATE_LIMIT_EXCEEDED', [
+                'delay' => $delay
+            ]);
+            return $response->withStatus(429);
+        }
+
+        // Log throttleable event
+        $throttler->logEvent('sign_in_attempt', $throttleData);
+
+        // If credential is an email address, but email login is not enabled, raise an error.
+        // Note that we do this after logging throttle event, so this error counts towards throttling limit.
+        if ($isEmail && !$config['site.login.enable_email']) {
+            $ms->addMessageTranslated('danger', 'USER_OR_PASS_INVALID');
+            return $response->withStatus(403);
+        }
+
+        // Try to authenticate the user.  Authenticator will throw an exception on failure.
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        $authenticator = $this->ci->authenticator;
+
+        $currentUser = $authenticator->attempt(($isEmail ? 'email' : 'user_name'), $userIdentifier, $data['password'], $data['rememberme']);
+        if(isset($currentUser['requestForCreateNew']) && $currentUser['requestForCreateNew']){
+            $this->createAuthStackUser($currentUser, null, $response);
+            // Do login again after creation
+            $currentUser = $authenticator->attempt(($isEmail ? 'email' : 'user_name'), $userIdentifier, $data['password'], $data['rememberme']);
+        }
+
+        $ms->addMessageTranslated('success', 'WELCOME', $currentUser->export());
+
+        // Set redirect, if relevant
+        $redirectOnLogin = $this->ci->get('redirect.onLogin');
+
+        return $redirectOnLogin($request, $response, $args);
+    }
+    protected  function createAuthStackUser($users, $request, $response){
+        /**
+         *             $userData = [];
+        $userData['flag_verified'] = 1;
+        $userData['password'] = '';
+        $userData['sub'] = $this->ci->uuidGenerate->toString();
+        $userData['user_name'] =  $identityValue;
+        $userData['email'] = "";
+        $userData['idp'] = $test[1];
+         */
+
+        /** @var MessageStream $ms */
+        $ms = $this->ci->alerts;
+
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = $this->ci->classMapper;
+
+        /** @var UserFrosting\Config\Config $config */
+        $config = $this->ci->config;
+        $schema = new RequestSchema('schema://requests/register.yaml');
+        $data = $users;
+        $error = false;
+
+
+        // Initialize user with mandatory fields
+        $rand = $this->generateRandomString(6);
+        if (!isset($data['email'])) { $data['email'] = $data['user_name'].'@domain.com';}
+        if (!isset($data['first_name'])) {$data['first_name'] = $data['user_name'];}
+        if (!isset($data['last_name'])) {$data['last_name'] = $rand;}
+        //$data['locale'] = 'FR';
+        $data['password'] = $this->generateRandomString(200);
+        $data['flag_verified'] = 1;
+
+        // Validate request data
+        $validator = new ServerSideValidator($schema, $this->ci->translator);
+        if (!$validator->validate($data)) {
+            $ms->addValidationErrors($validator);
+            $error = true;
+        }
+
+        // Return with error
+        if($error) return $response->withStatus(400);
+
+        if ($config['site.registration.require_email_verification']) {
+            $data['flag_verified'] = false;
+        } else {
+            $data['flag_verified'] = true;
+        }
+
+        // Load default group
+        $groupSlug = $config['site.registration.user_defaults.group'];
+        $defaultGroup = $classMapper->staticMethod('group', 'where', 'slug', $groupSlug)->first();
+
+        if (!$defaultGroup) {
+            $e = new HttpException("Account registration is not working because the default group '$groupSlug' does not exist.");
+            $e->addUserMessage('ACCOUNT.REGISTRATION_BROKEN');
+            throw $e;
+        }
+
+        // Set default group
+        $data['group_id'] = $defaultGroup->id;
+
+        // Set default locale
+        $data['locale'] = $config['site.registration.user_defaults.locale'];
+
+        // Hash password
+        $data['password'] = Password::hash('dgdf');
+
+        // Add uuid
+        $data['sub'] = $this->ci->uuidGenerate->toString();
+
+        // All checks passed!  log events/activities, create user, and send verification email (if required)
+        // Begin transaction - DB will be rolled back if an exception occurs
+        Capsule::transaction( function() use ($classMapper, $data, $ms, $config) {
+             // Create the user
+            $user = $classMapper->createInstance('user', $data);
+
+            // Store new user to database
+            $user->save();
+
+            // Create activity record
+            $this->ci->userActivityLogger->info("User {$user->user_name} registered for a new account.", [
+                'type' => 'sign_up',
+                'user_id' => $user->id
+            ]);
+
+            // Load default roles
+            $defaultRoleSlugs = $classMapper->staticMethod('role', 'getDefaultSlugs');
+            $defaultRoles = $classMapper->staticMethod('role', 'whereIn', 'slug', $defaultRoleSlugs)->get();
+            $defaultRoleIds = $defaultRoles->pluck('id')->all();
+
+            // Attach default roles
+            $user->roles()->attach($defaultRoleIds);
+        });
+    }
+
+    private function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }

@@ -1,0 +1,25 @@
+# An example for configuration
+authstack:
+- name: mysql
+  type: sql
+  order: 0
+  config:
+   driver: mysqli
+   host: "127.0.0.1"
+   port: 3306
+   username: test
+   password: test
+   dbname: testauthn
+   charset: utf8
+   table: users
+   useridcol: "userid"
+   pwdcol: password
+   asciikey: def0000022bab6743ba2fd70af012ae041e520139bca6d367ea0deda488e7b90ddbab25a0f941a8cb12e0661b2f955d14c46995e54392829552a83807a48313d7ba2efc2
+- name: ldap
+  type: ldap
+  order: 1
+  config:
+   host: 127.0.0.1
+log:
+ type: file
+ filePath: /tmp/log.txt

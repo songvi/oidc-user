@@ -2,8 +2,12 @@
 namespace UserFrosting\Sprinkle\OidcUser\Oauth2;
 
 use OAuth2\Storage\Pdo;
+use OAuth2\Storage\UserCredentialsInterface;
+use UserFrosting\Sprinkle\Account\Authenticate\Authenticator;
 
 class OauthStorePdo extends Pdo{
+    protected  $userCredentialService;
+    protected  $userClaimsService;
 
     public function __construct($connection, $config = array())
     {
@@ -24,30 +28,27 @@ class OauthStorePdo extends Pdo{
         ), $config);
     }
 
-    public function getUser($username){
-        parent::getUser($username);
-    }
-
-    public function setUser($username, $password, $firstName = null, $lastName = null){}
-
-    protected function checkPassword($user, $password)
-    {
-        return $user['password'] == sha1($password);
+    public function setUserCredentialService(UserCredentialsInterface $service){
+        $this->userCredentialService = $service;
     }
 
     /* OAuth2\Storage\UserCredentialsInterface */
     public function checkUserCredentials($username, $password)
     {
-        if ($user = $this->getUser($username)) {
-            return $this->checkPassword($user, $password);
+        if($this->userCredentialService instanceof UserCredential){
+            if($this->userCredentialService->authenticator instanceof Authenticator){
+                return $this->userCredentialService->authenticator->oidcAttempt($username, $password);
+            }
         }
-
         return false;
     }
 
     public function getUserDetails($username)
     {
-        return $this->getUser($username);
+        if($this->userCredentialService instanceof UserCredential){
+            return $this->userCredentialService->getUserDetails($username);
+        }
+        return false;
     }
 
     /* UserClaimsInterface */

@@ -20,7 +20,8 @@
     },
     "require": {
         "ramsey/uuid": "^3.0",
-        "chadicus/slim-oauth2" : "3.1.2"
+        "chadicus/slim-oauth2" : "3.1.2",
+        "vuba/authstack": "dev-master"
     }
 }
 

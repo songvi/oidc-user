@@ -13,12 +13,13 @@ $app->group('/api/users', function () {
 
 $app->group('/account', function () {
     $this->post('/register', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:register');
+    $this->post('/login', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:login');
     $this->post('/settings/profile', 'UserFrosting\Sprinkle\OidcUser\Controller\OidcAccountController:profile')
         ->add('authGuard');
 });
 
 $app->group('/oauth2', function () {
-    $this->post('/token', 'UserFrosting\Sprinkle\OidcUser\Controller\Token:token');
+    $this->post('/token', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Token:token');
     //$this->post('/authorize', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Authorize:authorizeFormSubmit');
-    $this->get('/authorize', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Authorize:authorize')->add('authGuard');
+    $this->get('/authorize', 'UserFrosting\Sprinkle\OidcUser\Oauth2\Authorize:authorize');
 });

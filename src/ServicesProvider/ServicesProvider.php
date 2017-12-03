@@ -10,6 +10,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use UserFrosting\Sprinkle\OidcUser\Oauth2\OauthStorePdo;
 use OAuth2\Server as OAuth2Server;
 use OAuth2\Storage\Memory;
+use UserFrosting\Sprinkle\OidcUser\Oauth2\UserCredential;
 
 class ServicesProvider
 {
@@ -27,6 +28,7 @@ class ServicesProvider
          */
         $container->extend('classMapper', function ($classMapper, $c) {
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\OidcUser\Database\Models\OidcUser');
+
             return $classMapper;
         });
 
@@ -66,6 +68,9 @@ class ServicesProvider
             $connection = Capsule::connection()->getPdo();
             $storage = new OauthStorePdo($connection, []);
 
+            $userCredential = new UserCredential($c['authenticator']);
+            $storage->setUserCredentialService($userCredential);
+
             // create array of supported grant types
             $grantTypes = array(
                 'authorization_code' => new AuthorizationCode($storage),
@@ -91,8 +96,8 @@ class ServicesProvider
 
     private function getKeyStorage()
     {
-        $publicKey  = file_get_contents($this->getModuleRoot().'/config/pubkey.pem');
-        $privateKey = file_get_contents($this->getModuleRoot().'/config/privkey.pem');
+        $publicKey  = file_get_contents($this->getModuleRoot().'../config/pubkey.pem');
+        $privateKey = file_get_contents($this->getModuleRoot().'../config/privkey.pem');
 
         // create storage
         $keyStorage = new Memory(array('keys' => array(
