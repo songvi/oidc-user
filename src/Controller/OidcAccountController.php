@@ -417,6 +417,7 @@ class OidcAccountController extends AccountController{
         //$data['locale'] = 'FR';
         $data['password'] = $this->generateRandomString(200);
         $data['flag_verified'] = 1;
+        $data['flag_enabled'] = 1;
 
         // Validate request data
         /*
@@ -428,12 +429,6 @@ class OidcAccountController extends AccountController{
 
         // Return with error
         if($error) return $response->withStatus(400);
-
-        if ($config['site.registration.require_email_verification']) {
-            $data['flag_verified'] = false;
-        } else {
-            $data['flag_verified'] = true;
-        }
 
         // Load default group
         $groupSlug = $config['site.registration.user_defaults.group'];
